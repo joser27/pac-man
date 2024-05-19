@@ -3,12 +3,15 @@ const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
 const matrix = [
-    [1,1,1,1,1,1,1,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
 
 const tileMatrix = [];
@@ -38,7 +41,7 @@ const player = {
 }
 
 const zombie = {
-    x: 6,
+    x: 11,
     y: 1,
 }
 //path(zombie)
@@ -76,10 +79,21 @@ function loop() {
 }
 loop();
 
-function path(entity) {
+function path(entity, targetX, targetY) {
     const stack = new Stack();
     stack.push(tileMatrix[entity.y][entity.x]);
 
+    const directions = [
+        [0, 1],   // Right
+        [0, -1],  // Left
+        [1, 0],   // Down
+        [-1, 0],  // Up
+        [1, 1],   // Diagonal down-right
+        [-1, -1], // Diagonal up-left
+        [1, -1],  // Diagonal down-left
+        [-1, 1],  // Diagonal up-right
+    ];
+    
     while(stack.size() > 0) {
         let tile = stack.pop();
         console.log(tile);
@@ -87,36 +101,28 @@ function path(entity) {
         if (!tile.visited) {
             tile.visited = true; // Mark the tile as visited
 
-            // Check the tile above (up)
-            if (tile.y > 0 && tileMatrix[tile.y - 1][tile.x].value !== 1 && !tileMatrix[tile.y - 1][tile.x].visited) {
-                console.log("Path up");
-                stack.push(tileMatrix[tile.y - 1][tile.x]);
-            }
+            for (const [dx, dy] of directions) {
+                const ni = tile.y + dy;
+                const nj = tile.x + dx;
 
-            // Check the tile below (down)
-            if (tile.y < rows - 1 && tileMatrix[tile.y + 1][tile.x].value !== 1 && !tileMatrix[tile.y + 1][tile.x].visited) {
-                console.log("Path down");
-                stack.push(tileMatrix[tile.y + 1][tile.x]);
+                if (ni >= 0 && ni < rows && nj >= 0 && nj < cols &&
+                    tileMatrix[ni][nj].value !== 1 && !tileMatrix[ni][nj].visited) {
+                    stack.push(tileMatrix[ni][nj]);
+                }
             }
+        }
 
-            // Check the tile to the left (left)
-            if (tile.x > 0 && tileMatrix[tile.y][tile.x - 1].value !== 1 && !tileMatrix[tile.y][tile.x - 1].visited) {
-                console.log("Path left");
-                stack.push(tileMatrix[tile.y][tile.x - 1]);
-            }
-
-            // Check the tile to the right (right)
-            if (tile.x < cols - 1 && tileMatrix[tile.y][tile.x + 1].value !== 1 && !tileMatrix[tile.y][tile.x + 1].visited) {
-                console.log("Path right");
-                stack.push(tileMatrix[tile.y][tile.x + 1]);
-            }
+        // Check if the current tile matches the target position
+        if (tile.x === targetX && tile.y === targetY) {
+            console.log("Reached target position!");
+            break; // Stop the loop
         }
     }
 }
 window.addEventListener('keydown', (e) => {
     switch(e.key) {
         case 'w':
-            
+            path(zombie,player.x,player.y)
             break
 
 }})
