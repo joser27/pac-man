@@ -3,12 +3,13 @@ const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
 const matrix = [
-    [1,1,1,1,1,1,1,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,1,0,0,0,1],
-    [1,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1],
 ];
 
 const tileMatrix = [];
@@ -47,12 +48,6 @@ function loop() {
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = 'white';
     c.fillRect(0, 0, canvas.width, canvas.height);
-    // player draw
-    c.fillStyle='red'
-    c.fillRect(player.x * squareWidth, player.y * squareHeight, squareWidth, squareHeight);
-    // zombie draw
-    c.fillStyle='orange'
-    c.fillRect(zombie.x * squareWidth, zombie.y * squareHeight, squareWidth, squareHeight);
 
     // Draw the matrix
     for (let y = 0; y < rows; y++) {
@@ -64,14 +59,15 @@ function loop() {
                 c.fillStyle = 'black';
                 c.strokeRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
             }
-            
+
             // Print visited cells
             if (tileMatrix[y][x].visited) {
-                c.fillStyle = 'blue';
+                c.fillStyle = 'blue'; // Change to green or any other color
                 c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
             }
         }
     }
+
     window.requestAnimationFrame(loop);
 }
 loop();
@@ -80,46 +76,41 @@ function path(entity) {
     const stack = new Stack();
     stack.push(tileMatrix[entity.y][entity.x]);
 
-    while(stack.size() > 0) {
-        let tile = stack.pop();
-        console.log(tile);
-        
-        if (!tile.visited) {
+    const delay = 100; // Delay between steps (in milliseconds)
+
+    function explore() {
+        if (stack.size() > 0) {
+            let tile = stack.pop();
             tile.visited = true; // Mark the tile as visited
 
-            // Check the tile above (up)
+            // Check adjacent tiles and push them onto the stack if valid
             if (tile.y > 0 && tileMatrix[tile.y - 1][tile.x].value !== 1 && !tileMatrix[tile.y - 1][tile.x].visited) {
-                console.log("Path up");
-                stack.push(tileMatrix[tile.y - 1][tile.x]);
+                stack.push(tileMatrix[tile.y - 1][tile.x]); // Up
             }
-
-            // Check the tile below (down)
             if (tile.y < rows - 1 && tileMatrix[tile.y + 1][tile.x].value !== 1 && !tileMatrix[tile.y + 1][tile.x].visited) {
-                console.log("Path down");
-                stack.push(tileMatrix[tile.y + 1][tile.x]);
+                stack.push(tileMatrix[tile.y + 1][tile.x]); // Down
             }
-
-            // Check the tile to the left (left)
             if (tile.x > 0 && tileMatrix[tile.y][tile.x - 1].value !== 1 && !tileMatrix[tile.y][tile.x - 1].visited) {
-                console.log("Path left");
-                stack.push(tileMatrix[tile.y][tile.x - 1]);
+                stack.push(tileMatrix[tile.y][tile.x - 1]); // Left
+            }
+            if (tile.x < cols - 1 && tileMatrix[tile.y][tile.x + 1].value !== 1 && !tileMatrix[tile.y][tile.x + 1].visited) {
+                stack.push(tileMatrix[tile.y][tile.x + 1]); // Right
             }
 
-            // Check the tile to the right (right)
-            if (tile.x < cols - 1 && tileMatrix[tile.y][tile.x + 1].value !== 1 && !tileMatrix[tile.y][tile.x + 1].visited) {
-                console.log("Path right");
-                stack.push(tileMatrix[tile.y][tile.x + 1]);
-            }
+            setTimeout(explore, delay); // Recursive call with delay
         }
     }
+
+    explore();
 }
 window.addEventListener('keydown', (e) => {
-    switch(e.key) {
+    switch (e.key) {
         case 'w':
-            
-            break
-
-}})
+            path(zombie); // Start DFS from zombie's position
+            break;
+        // Handle other keys if needed
+    }
+});
 
 
 
