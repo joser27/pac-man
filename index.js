@@ -2,6 +2,7 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
+
 const matrix = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
@@ -24,6 +25,7 @@ for (let i = 0; i < matrix.length; i++) {
             y: i, // y coordinate is the row index
             visited: false,
             value: matrix[i][j],
+            parent: null, // Initialize parent as null
         };
         row.push(tile);
     }
@@ -41,20 +43,20 @@ const player = {
 }
 
 const zombie = {
-    x: 11,
+    x: 14,
     y: 1,
 }
-//path(zombie)
+
 function loop() {
     // Clear the canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = 'white';
     c.fillRect(0, 0, canvas.width, canvas.height);
     // player draw
-    c.fillStyle='red'
+    c.fillStyle = 'red'
     c.fillRect(player.x * squareWidth, player.y * squareHeight, squareWidth, squareHeight);
     // zombie draw
-    c.fillStyle='orange'
+    c.fillStyle = 'orange'
     c.fillRect(zombie.x * squareWidth, zombie.y * squareHeight, squareWidth, squareHeight);
 
     // Draw the matrix
@@ -70,6 +72,12 @@ function loop() {
             
             // Print visited cells
             if (tileMatrix[y][x].visited) {
+                c.fillStyle = 'rgba(0,255,0,0.4)';
+                c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+            }
+
+            // Print the path in blue
+            if (tileMatrix[y][x].path) {
                 c.fillStyle = 'blue';
                 c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
             }
@@ -107,6 +115,7 @@ function path(entity, targetX, targetY) {
 
                 if (ni >= 0 && ni < rows && nj >= 0 && nj < cols &&
                     tileMatrix[ni][nj].value !== 1 && !tileMatrix[ni][nj].visited) {
+                    tileMatrix[ni][nj].parent = tile; // Set parent for path reconstruction
                     stack.push(tileMatrix[ni][nj]);
                 }
             }
@@ -115,20 +124,22 @@ function path(entity, targetX, targetY) {
         // Check if the current tile matches the target position
         if (tile.x === targetX && tile.y === targetY) {
             console.log("Reached target position!");
+            
+            // Reconstruct the path
+            let pathTile = tile;
+            while (pathTile) {
+                pathTile.path = true; // Mark the path
+                pathTile = pathTile.parent;
+            }
             break; // Stop the loop
         }
     }
 }
+
 window.addEventListener('keydown', (e) => {
     switch(e.key) {
         case 'w':
-            path(zombie,player.x,player.y)
-            break
-
-}})
-
-
-
-
-
-
+            path(zombie, player.x, player.y);
+            break;
+    }
+});
