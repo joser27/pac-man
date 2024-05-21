@@ -26,6 +26,7 @@ for (let i = 0; i < matrix.length; i++) {
             state: null, //1 indicates open, 0 closed
             value: matrix[i][j],
             cost: 999,
+            parent: null,
         };
         row.push(tile);
     }
@@ -46,7 +47,7 @@ const zombie = {
     x: 14,
     y: 1,
 }
-
+let currentPath = [];
 function loop() {
     // Clear the canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -59,32 +60,37 @@ function loop() {
     c.fillStyle = 'orange'
     c.fillRect(zombie.x * squareWidth, zombie.y * squareHeight, squareWidth, squareHeight);
 
-// Draw the matrix
-for (let y = 0; y < matrix.length; y++) {
-    for (let x = 0; x < matrix[y].length; x++) {
-        if (matrix[y][x] === 1) {
-            c.fillStyle = 'grey';
-            c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
-        } else if (matrix[y][x] === 0) {
-            c.fillStyle = 'black';
-            c.strokeRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+    // Draw the matrix
+    for (let y = 0; y < matrix.length; y++) {
+        for (let x = 0; x < matrix[y].length; x++) {
+            if (matrix[y][x] === 1) {
+                c.fillStyle = 'grey';
+                c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+            } else if (matrix[y][x] === 0) {
+                c.fillStyle = 'black';
+                c.strokeRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+            }
+            // Print visited cells
+            if (tileMatrix[y][x].state !== null) {
+                c.fillStyle = 'rgba(255,0,0,0.8)';
+                c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+            }
+            
+            // Draw text for state, cost, and coordinates
+            const textX = x * squareWidth + squareWidth / 6; // Adjust position for better visibility
+            const textY = y * squareHeight + squareHeight / 3; // Adjust position for better visibility
+            c.fillStyle = 'white';
+            c.font = '8px Arial';
+            c.fillText(`(${tileMatrix[y][x].x},${tileMatrix[y][x].y})`, textX, textY - 6);
+            c.fillText(`State: ${tileMatrix[y][x].state}`, textX, textY + 2);
+            c.fillText(`Cost: ${tileMatrix[y][x].cost}`, textX, textY + 10);
+
+            // Draw the path
+            drawPath(currentPath);
+
         }
-        // Print visited cells
-        if (tileMatrix[y][x].state !== null) {
-            c.fillStyle = 'rgba(255,0,0,0.8)';
-            c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
-        }
-        
-        // Draw text for state, cost, and coordinates
-        const textX = x * squareWidth + squareWidth / 6; // Adjust position for better visibility
-        const textY = y * squareHeight + squareHeight / 3; // Adjust position for better visibility
-        c.fillStyle = 'white';
-        c.font = '8px Arial';
-        c.fillText(`(${tileMatrix[y][x].x},${tileMatrix[y][x].y})`, textX, textY - 6);
-        c.fillText(`State: ${tileMatrix[y][x].state}`, textX, textY + 2);
-        c.fillText(`Cost: ${tileMatrix[y][x].cost}`, textX, textY + 10);
     }
-}
+    drawPath(currentPath);
     window.requestAnimationFrame(loop);
 }
 loop();
@@ -99,13 +105,21 @@ function path(entity, target) {
     console.log(tile)
 
     count=0;
-    while (count < 74) {
+    while (count < 100) {
         tile = findNextInterestedTile(tileMatrix);
         if (tile.x === target.x && tile.y === target.y) {
-            //backtrack
-
-            
-            break;
+            // Backtrack to find the path
+            console.log("Target found, starting backtracking...");
+            let path = [];
+            while (tile.parent !== null) {
+                path.push(tile);
+                tile = tile.parent;
+            }
+            path.push(tileMatrix[entity.y][entity.x]); // Add the start tile
+            path.reverse(); // Reverse the path to start from the beginning
+            console.log("Path found:");
+            console.log(path);
+            return path;
         }
         
         tileMatrix[tile.y][tile.x].state = 0;
@@ -137,8 +151,19 @@ function path(entity, target) {
             
         }
         count++;
+        console.log(count)
     }
 
+}
+
+function drawPath(path) {
+    if (path === null || path.length === 0) return;
+
+    for (let i = 0; i < path.length; i++) {
+        let tile = path[i];
+        c.fillStyle = 'rgba(00,100,00,0.01)';
+        c.fillRect(tile.x * squareWidth, tile.y * squareHeight, squareWidth, squareHeight);
+    }
 }
 
 function findNextInterestedTile(tileMatrix) {
@@ -160,26 +185,32 @@ function findNextInterestedTile(tileMatrix) {
 function lookAtNeighbors(tile){
     if (tile.y > 0 && tileMatrix[tile.y - 1][tile.x].value !== 1 && tileMatrix[tile.y - 1][tile.x].cost !== 999) {//up
         console.log("non infinite neigbor up")
+        //update cost
         tile.cost = tileMatrix[tile.y - 1][tile.x].cost + 10;
+        //update parent tile
+        tile.parent = tileMatrix[tile.y - 1][tile.x];
     }
     if (tile.y < rows - 1 && tileMatrix[tile.y + 1][tile.x].value !== 1 && tileMatrix[tile.y + 1][tile.x].cost !== 999) {//down
         console.log("non infinite neigbor d")
         tile.cost = tileMatrix[tile.y + 1][tile.x].cost + 10;
+        tile.parent = tileMatrix[tile.y + 1][tile.x]
     }
     if (tile.x > 0 && tileMatrix[tile.y][tile.x - 1].value !== 1 && tileMatrix[tile.y][tile.x - 1].cost !== 999) {//left
         console.log("non infinite neigbor l")
         tile.cost = tileMatrix[tile.y][tile.x - 1].cost + 10;
+        tile.parent = tileMatrix[tile.y][tile.x - 1]
     }
     if (tile.x < cols - 1 && tileMatrix[tile.y][tile.x + 1].value !== 1 && tileMatrix[tile.y][tile.x + 1].cost !== 999) {//right
         console.log("non infinite neigbor r")
         tile.cost = tileMatrix[tile.y][tile.x + 1].cost + 10;
+        tile.parent = tileMatrix[tile.y][tile.x + 1]
     }
 }
 
 window.addEventListener('keydown', (e) => {
-    switch(e.key) {
+    switch (e.key) {
         case 'w':
-            path(zombie, player);
+            currentPath = path(zombie, player);
             break;
     }
 });
