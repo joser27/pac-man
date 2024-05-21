@@ -2,17 +2,40 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
-const matrix = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+let matrix = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0],
+    [1,1,1,1,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0],
+    [0,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0],
+    [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
+
+//matrix = matrix.flatMap(row => [row.concat(row), row.concat(row)]);
+//matrix = matrix.flatMap(col => [col.concat(col), col.concat(col)]);
+// const matrix = [
+//     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+//     [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+// ];
 // const tileMatrix = [];
 
 
@@ -37,8 +60,8 @@ const cols = matrix[0].length;
 const squareWidth = canvas.width / cols;
 const squareHeight = canvas.height / rows;
 
-const player = new Player(1*squareWidth,1*squareHeight,squareWidth,squareHeight)
-const zombie = new Zombie(14*squareWidth,1*squareHeight,squareWidth,squareHeight)
+const player = new Player(5*squareWidth,3*squareHeight,squareWidth,squareHeight)
+const zombie = new Zombie(14*squareWidth,5*squareHeight,squareWidth,squareHeight)
 
 let backtrack = [];
 let moveUp = false;
@@ -50,6 +73,7 @@ function loop() {
     frame++;
     if (frame>100) {
         frame=0;
+  
         path(zombie, player);
     }
     // Clear the canvas
@@ -68,8 +92,8 @@ function loop() {
     
     // Update player position based on movement flags
     updatePlayerPosition();
-    if (backtrack.length > 1) {
-        const nextTile = backtrack[backtrack.length - 2];
+    if (backtrack.length >= 1) {
+        const nextTile = backtrack[backtrack.length - 1];
         if (zombie.hitBox.x < nextTile.x * squareWidth) {
             zombie.hitBox.x += 1;
         } else if (zombie.hitBox.x > nextTile.x * squareWidth) {
@@ -112,7 +136,7 @@ function loop() {
 
     for (let i = 0; i < backtrack.length; i++) {
         let tile = backtrack[i];
-        console.log(tile)
+        //console.log(tile)
         c.fillStyle = 'rgba(0,255,0,0.3)';
         c.fillRect(tile.x * squareWidth, tile.y * squareHeight, squareWidth, squareHeight);
     }
@@ -150,7 +174,7 @@ function path(entity, target) {
     // console.log(tile)
 
     count=0;
-    while (count < 100) {
+    while (true) {
         tile = findNextInterestedTile(tileMatrix);
         
         // Check if tile is undefined (no interested tiles left)
@@ -159,7 +183,7 @@ function path(entity, target) {
             break;
         }
 
-        
+        console.log()
         if (tile.x === Math.floor(target.hitBox.x/squareWidth) && tile.y === Math.floor(target.hitBox.y/squareHeight)) {
             //backtrack
             backtrack = [];
