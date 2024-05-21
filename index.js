@@ -47,7 +47,7 @@ const zombie = {
     x: 14,
     y: 1,
 }
-let currentPath = [];
+let backtrack = [];
 function loop() {
     // Clear the canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -84,13 +84,14 @@ function loop() {
             c.fillText(`(${tileMatrix[y][x].x},${tileMatrix[y][x].y})`, textX, textY - 6);
             c.fillText(`State: ${tileMatrix[y][x].state}`, textX, textY + 2);
             c.fillText(`Cost: ${tileMatrix[y][x].cost}`, textX, textY + 10);
-
-            // Draw the path
-            drawPath(currentPath);
-
         }
     }
-    drawPath(currentPath);
+
+    for (let i = 0; i < backtrack.length; i++) {
+        let tile = backtrack[i];
+        c.fillStyle = 'rgba(0,255,0,0.3)';
+        c.fillRect(tile.x * squareWidth, tile.y * squareHeight, squareWidth, squareHeight);
+    }
     window.requestAnimationFrame(loop);
 }
 loop();
@@ -108,18 +109,15 @@ function path(entity, target) {
     while (count < 100) {
         tile = findNextInterestedTile(tileMatrix);
         if (tile.x === target.x && tile.y === target.y) {
-            // Backtrack to find the path
+            //backtrack
             console.log("Target found, starting backtracking...");
-            let path = [];
             while (tile.parent !== null) {
-                path.push(tile);
+                backtrack.push(tile);
                 tile = tile.parent;
             }
-            path.push(tileMatrix[entity.y][entity.x]); // Add the start tile
-            path.reverse(); // Reverse the path to start from the beginning
-            console.log("Path found:");
-            console.log(path);
-            return path;
+            backtrack.push(tileMatrix[entity.y][entity.x]); // dont forget to add the start tile
+
+            break;
         }
         
         tileMatrix[tile.y][tile.x].state = 0;
@@ -156,16 +154,6 @@ function path(entity, target) {
 
 }
 
-function drawPath(path) {
-    if (path === null || path.length === 0) return;
-
-    for (let i = 0; i < path.length; i++) {
-        let tile = path[i];
-        c.fillStyle = 'rgba(00,100,00,0.01)';
-        c.fillRect(tile.x * squareWidth, tile.y * squareHeight, squareWidth, squareHeight);
-    }
-}
-
 function findNextInterestedTile(tileMatrix) {
     let minCostTile = null;
 
@@ -185,10 +173,8 @@ function findNextInterestedTile(tileMatrix) {
 function lookAtNeighbors(tile){
     if (tile.y > 0 && tileMatrix[tile.y - 1][tile.x].value !== 1 && tileMatrix[tile.y - 1][tile.x].cost !== 999) {//up
         console.log("non infinite neigbor up")
-        //update cost
         tile.cost = tileMatrix[tile.y - 1][tile.x].cost + 10;
-        //update parent tile
-        tile.parent = tileMatrix[tile.y - 1][tile.x];
+        tile.parent = tileMatrix[tile.y - 1][tile.x]
     }
     if (tile.y < rows - 1 && tileMatrix[tile.y + 1][tile.x].value !== 1 && tileMatrix[tile.y + 1][tile.x].cost !== 999) {//down
         console.log("non infinite neigbor d")
@@ -203,14 +189,14 @@ function lookAtNeighbors(tile){
     if (tile.x < cols - 1 && tileMatrix[tile.y][tile.x + 1].value !== 1 && tileMatrix[tile.y][tile.x + 1].cost !== 999) {//right
         console.log("non infinite neigbor r")
         tile.cost = tileMatrix[tile.y][tile.x + 1].cost + 10;
-        tile.parent = tileMatrix[tile.y][tile.x + 1]
+        tile.parent = tileMatrix[tile.y][tile.x + 1];
     }
 }
 
 window.addEventListener('keydown', (e) => {
-    switch (e.key) {
+    switch(e.key) {
         case 'w':
-            currentPath = path(zombie, player);
+            path(zombie, player);
             break;
     }
 });
