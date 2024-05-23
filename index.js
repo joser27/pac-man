@@ -27,6 +27,7 @@ for (let i = 0; i < matrix.length; i++) {
             toBeVisited: false,
             value: matrix[i][j],
             parent: null,
+            isPath: false,
         };
         row.push(tile);
     }
@@ -49,6 +50,7 @@ const zombie = {
 }
 let count = 0;
 let custom = 2;
+let backtrack = []
 BFS(zombie,player)
 //path(zombie)
 function loop() {
@@ -84,13 +86,26 @@ function loop() {
                 c.fillStyle = 'rgba(100,0,00,0.3)';
                 c.fillRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
             }
-                    // Print tile properties
-        c.fillStyle = 'black';
-        c.fillText(`V: ${tileMatrix[y][x].visited}`, x * tileWidth, y * tileHeight + 10);
-        c.fillText(`Val: ${tileMatrix[y][x].value}`, x * tileWidth, y * tileHeight + 20);
-        c.fillText(`TBV: ${tileMatrix[y][x].toBeVisited}`, x * tileWidth, y * tileHeight + 30);
-    
+            // Draw path cells
+            if (tileMatrix[y][x].isPath) {
+                c.fillStyle = 'black'; // Choose a color for the path
+                c.fillRect(x * tileWidth, y * tileHeight, tileWidth, tileHeight);
+            }
+            // Print tile properties
+            c.fillStyle = 'black';
+            c.fillText(`P: ${tileMatrix[y][x].isPath}`, x * tileWidth, y * tileHeight + 10);
+            c.fillText(`Val: ${tileMatrix[y][x].value}`, x * tileWidth, y * tileHeight + 20);
+            c.fillText(`TBV: ${tileMatrix[y][x].toBeVisited}`, x * tileWidth, y * tileHeight + 30);
+        
         }
+    }
+
+    for (let i = 0; i < backtrack.length; i++) {
+        console.log("hi")
+        let tile = backtrack[i];
+        //console.log(tile)
+        c.fillStyle = 'rgba(0,255,0,0.3)';
+        c.fillRect(tile.x * squareWidth, tile.y * squareHeight, squareWidth, squareHeight);
     }
     window.requestAnimationFrame(loop);
 }
@@ -104,21 +119,23 @@ function BFS(entity, target) {
     tileMatrix[Math.floor(entity.y/tileHeight)][Math.floor(entity.x/tileWidth)].toBeVisited=true;
     toBeVisited.enqueue(tile);
     
-    while(count<85) {
+    while(count<90) {
         count++;
         tile = toBeVisited.dequeue();
         //tileMatrix[tile.y][tile.x].visited=true;
         //visited.push(tile)
+
         if (tile.x === target.x/tileWidth && tile.y === target.y/tileHeight) {
             console.log("Target found, starting backtracking...");
-            let backtrack = [];
+            backtrack = [];
+            console.log(tile)
             while (tile.parent !== null) {
+
                 backtrack.push(tile);
                 tile = tile.parent;
             }
             break;
         }
-
         if (tile.y > 0 && tileMatrix[tile.y - 1][tile.x].value !== 1 && !tileMatrix[tile.y - 1][tile.x].visited && !tileMatrix[tile.y - 1][tile.x].toBeVisited) {
             console.log("u")
             toBeVisited.enqueue(tileMatrix[tile.y - 1][tile.x]);
@@ -147,8 +164,7 @@ function BFS(entity, target) {
             tileMatrix[tile.y][tile.x + 1].toBeVisited=true
             tileMatrix[tile.y][tile.x].parent = tileMatrix[tile.y][tile.x + 1]
         }
-        console.log(toBeVisited.items)
-        console.log(visited.length)
+
     }
 }
 
