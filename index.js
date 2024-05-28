@@ -2,33 +2,29 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 canvas.width = 1024;
 canvas.height = 576;
+// const matrix = [
+//     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+//     [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+//     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+// ];
+
 const matrix = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
-
-const tileMatrix = [];
-
-for (let i = 0; i < matrix.length; i++) {
-    const row = [];
-    for (let j = 0; j < matrix[i].length; j++) {
-        const tile = {
-            x: j, // x coordinate is the column index
-            y: i, // y coordinate is the row index
-            visited: false,
-            value: matrix[i][j],
-        };
-        row.push(tile);
-    }
-    tileMatrix.push(row);
-}
 
 const rows = matrix.length;
 const cols = matrix[0].length;
@@ -36,15 +32,20 @@ const squareWidth = canvas.width / cols;
 const squareHeight = canvas.height / rows;
 
 const player = {
-    x: 1,
-    y: 1,
+    x: 10,
+    y: 5,
 }
 
 const zombie = {
-    x: 11,
-    y: 1,
+    x: 7,
+    y: 2,
 }
-//path(zombie)
+
+astar = new AStar();
+
+console.log("PATHING")
+let pathing = astar.path(player,zombie);
+console.log(pathing)
 function loop() {
     // Clear the canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -68,61 +69,39 @@ function loop() {
                 c.strokeRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
             }
             
-            // Print visited cells
-            if (tileMatrix[y][x].visited) {
-                c.fillStyle = 'blue';
-                c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
-            }
+                    // // Display gCost, fCost, and hCost as text
+                    
+                    // let currentNode = nodeMatrix[y][x];
+                    // if (currentNode.gCost > 0) {
+                    //     c.clearRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+                    //     c.fillStyle = 'red';
+                    //     c.font = '12px Arial'; // Set font size and style
+                    //     c.fillText(`g:${currentNode.gCost}`, x * squareWidth, y * squareHeight + 15); // Display gCost
+                    //     c.fillText(`h:${currentNode.hCost}`, x * squareWidth + 35, y * squareHeight + 15); // Display fCost
+                    //     c.font = '25px Arial'; 
+                    //     c.fillText(`f:${currentNode.fCost}`, x * squareWidth + 1, y * squareHeight + 45); // Display hCost
+                    // }
+                    // if (this.closed.includes(currentNode)) {
+                    //     c.fillStyle = 'rgba(255,0,0,0.5)';
+                    //     c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+                    // }
+                    // if (this.open.includes(currentNode)) {
+                    //     c.fillStyle = 'rgba(0,255,0,0.5)';
+                    //     c.fillRect(x * squareWidth, y * squareHeight, squareWidth, squareHeight);
+                    // }
         }
     }
     window.requestAnimationFrame(loop);
 }
 loop();
 
-function path(entity, targetX, targetY) {
-    const stack = new Stack();
-    stack.push(tileMatrix[entity.y][entity.x]);
 
-    const directions = [
-        [0, 1],   // Right
-        [0, -1],  // Left
-        [1, 0],   // Down
-        [-1, 0],  // Up
-        [1, 1],   // Diagonal down-right
-        [-1, -1], // Diagonal up-left
-        [1, -1],  // Diagonal down-left
-        [-1, 1],  // Diagonal up-right
-    ];
-    
-    while(stack.size() > 0) {
-        let tile = stack.pop();
-        console.log(tile);
-        
-        if (!tile.visited) {
-            tile.visited = true; // Mark the tile as visited
-
-            for (const [dx, dy] of directions) {
-                const ni = tile.y + dy;
-                const nj = tile.x + dx;
-
-                if (ni >= 0 && ni < rows && nj >= 0 && nj < cols &&
-                    tileMatrix[ni][nj].value !== 1 && !tileMatrix[ni][nj].visited) {
-                    stack.push(tileMatrix[ni][nj]);
-                }
-            }
-        }
-
-        // Check if the current tile matches the target position
-        if (tile.x === targetX && tile.y === targetY) {
-            console.log("Reached target position!");
-            break; // Stop the loop
-        }
-    }
-}
 window.addEventListener('keydown', (e) => {
     switch(e.key) {
-        case 'w':
-            path(zombie,player.x,player.y)
+        case 'e':
+            console.log("PATHING")
+            astar.path(player,zombie);
+            
             break
 
 }})
