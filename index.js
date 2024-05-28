@@ -43,10 +43,9 @@ const zombie = {
 
 astar = new AStar();
 
-console.log("PATHING")
-let pathing = astar.path(player,zombie);
-console.log(pathing)
+
 function loop() {
+    let pathing = astar.path(player,zombie);
     // Clear the canvas
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = 'white';
@@ -91,6 +90,12 @@ function loop() {
                     // }
         }
     }
+    for (let i = 0; i < pathing.length; i++) {
+        let tile = pathing[i];
+        //console.log(tile)
+        c.fillStyle = 'rgba(0,255,0,0.3)';
+        c.fillRect(tile[0] * squareWidth, tile[1] * squareHeight, squareWidth, squareHeight);
+    }
     window.requestAnimationFrame(loop);
 }
 loop();
@@ -100,7 +105,7 @@ window.addEventListener('keydown', (e) => {
     switch(e.key) {
         case 'e':
             console.log("PATHING")
-            astar.path(player,zombie);
+            pathing = astar.path(player,zombie);
             
             break
 

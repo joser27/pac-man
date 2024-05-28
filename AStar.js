@@ -17,6 +17,9 @@ class AStar {
         return nodeMatrix;
     }
     path(start, end) { 
+        this.open = [];
+        this.closed = [];
+        this.matrix = [];
         let nodeMatrix = this.createNodeMatrix(matrix);
         let startNode = nodeMatrix[start.y][start.x];
         let endNode = nodeMatrix[end.y][end.x];
@@ -38,10 +41,11 @@ class AStar {
                 console.log("End node found! Path has been found.")
                 let path = [];
                 let temp = current;
-                console.log(temp)
                 while(temp !== startNode) {
                     path.push([temp.x, temp.y]);
                     temp = temp.parent;
+
+                    console.log(temp)
                 }
                 //console.log(path)
                 return path.reverse();
